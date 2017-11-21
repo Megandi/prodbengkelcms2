@@ -1,0 +1,597 @@
+@extends('template.app')
+
+{{-- set title --}}
+@section('title', 'Selling Add')
+
+{{-- set main content --}}
+@section('content')
+
+<body class="hold-transition skin-blue sidebar-mini">
+  <div class="wrapper">
+    <header class="main-header">
+    <!-- Logo -->
+    <a href="{{ url('dashboard/home') }}" class="logo">
+      <!-- mini logo for sidebar mini 50x50 pixels -->
+      <span class="logo-mini"><b>MG</b>S</span>
+      <!-- logo for regular state and mobile devices -->
+      <span class="logo-lg"><b>Management</b> System</span>
+    </a>
+
+     <nav class="navbar navbar-static-top">
+    <!-- Sidebar toggle button-->
+    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+      <span class="sr-only">Toggle navigation</span>
+    </a>
+          @include('template.menu')
+      </nav>
+    </header>
+
+         @include('template.sidebar')
+
+    <div class="content-wrapper">
+      <!-- Main content -->
+      <section class="content-header">
+        <h1>
+          Selling
+          <small>Add</small>
+        </h1>
+        <ol class="breadcrumb">
+          <li>Dashboard</li>
+          <li>Selling Home</li>
+          <li class="active">Add</li>
+        </ol>
+      </section>
+
+      <section class="content">
+          <div class="row">
+            <div class="col-xs-12">
+
+            {{-- alert --}}
+            @if (session('status'))
+              <div class="alert alert-success">
+            {{ session('status') }}
+              </div>
+            @endif
+            @if (session('error'))
+              <div class="alert alert-danger">
+            {{ session('error') }}
+              </div>
+            @endif
+
+            <div class="box box-info">
+              <div class="box-header with-border">
+                <h3 class="box-title">Total : Rp {{number_format($totaluang)}}</h3>
+              </div>
+            </div>
+
+              <div class="box box-info">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Please complete the form of first item before you submit.</h3>
+                </div>
+
+                <form class="form-horizontal" action="{{ url('/selling/selling_home/tig/do_add') }}" method="post" onsubmit="return validasitrue();">
+                  <div class="box-body">
+
+                    {{-- set token --}}
+                    {{ csrf_field() }}
+
+                    <div class="form-group">
+                      <label for="input_pembelian_id" class="col-sm-2 control-label">Selling ID <span style="color:red;">*</span></label>
+                      <div class="col-sm-10">
+                        <input type="hidden" name="id_penjualan" value="{{$selling->id}}">
+                        <input type="text" class="form-control" name="penjualan_id" id="penjualan_id" placeholder="Selling ID" value="{{$selling->penjualan_id}}" readonly="true">
+                      @if($errors->has('pembelian_id'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('pembelian_id') }}</p>
+                      @endif
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="input_type_id" class="col-sm-2 control-label">Type <span style="color:red;">*</span></label>
+                      <div class="col-sm-10">
+                        <select style="text-transform:uppercase" class="form-control" id="type_select">
+                          <option value="">Select Type</option>
+                          <option value="1">Service</option>
+                          <option value="2">Items</option>
+                        </select>
+                      <input type="hidden" id="type_id" name="type_id" value="1">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="input_items_id" class="col-sm-2 control-label">Items or Services <span style="color:red;">*</span></label>
+                      <div class="col-sm-10">
+                        <select style="text-transform:uppercase" class="js-items-id form-control"></select>
+                       @if($errors->has('items_id'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('items_id') }}</p>
+                      @endif
+                      <input type="hidden" id="items_id" name="items_id">
+                      <input type="hidden" id="items_qty" name="items_qty">
+                      <input type="hidden" id="items_qty_buy" name="items_qty_buy">
+                      <input type="hidden" id="items_sub_total" name="items_sub_total">
+                      <input type="hidden" id="items_grand_total" name="items_grand_total">
+                      <input type="hidden" id="id_get_items" name="id_get_items">
+                      <input type="hidden" id="id_get_stock" name="id_get_stock">
+                      <input type="hidden" id="idretur" name="idretur" value="{{$idretur}}">
+                      <input type="hidden" id="totaluang" name="totaluang" value="{{$totaluang}}">
+                      <input type="hidden" id="isavailable" name="isavailable">
+                      </div>
+                    </div>
+
+                    <div id="new_item_layout" style="display: none;">
+
+                      <div class="form-group">
+                        <label for="input_new_item" class="col-sm-2 control-label">New Item </label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" name="new_item" id="new_item" placeholder="New Item" value="{{old('new_item')}}">
+                        @if($errors->has('new_item'))
+                            <p style="font-style: bold; color: red;">{{ $errors->first('new_item') }}</p>
+                        @endif
+                        </div>
+                      </div>
+
+                      {{--<div class="form-group">
+                        <label for="input_new_price" class="col-sm-2 control-label">New Price <span style="color:red;"></span></label>
+                        <div class="col-sm-10">
+                          <input type="number" min="0" class="form-control" name="new_price" id="new_price" placeholder="New Price" value="{{old('new_price')}}">
+                        @if($errors->has('new_price'))
+                            <p style="font-style: bold; color: red;">{{ $errors->first('new_price') }}</p>
+                        @endif
+                        </div>
+                      </div>--}}
+
+                    </div>
+
+                    @if(Auth::user()->level_id == 0 || Auth::user()->level_id == 1)
+                    <div class="form-group">
+                      <label for="input_items_qty_view" class="col-sm-2 control-label">Quantities <span style="color:red;">*</span></label>
+                      <div class="col-sm-10">
+                        <input type="number" min="0" required class="form-control" name="items_qty_view" id="items_qty_view" placeholder="Quantities" value="{{old('items_qty_view')}}" onblur="calculateForm();">
+                        <input type="hidden" min="0" class="form-control" name="items_qty_viewasli" id="items_qty_viewasli">
+                      @if($errors->has('items_qty_view'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('items_qty_view') }}</p>
+                      @endif
+                      </div>
+                    </div>
+                    @endif
+
+                    <div class="form-group">
+                      <label for="input_emp1_id" class="col-sm-2 control-label">Employee ID 1 <span style="color:red;"></span></label>
+                      <div class="col-sm-10">
+                        <select style="text-transform:uppercase" class="js-emp1-id form-control"></select>
+                       @if($errors->has('emp1_id'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('emp1_id') }}</p>
+                      @endif
+                      <input type="hidden" id="emp1_id" name="emp1_id">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="input_emp2_id" class="col-sm-2 control-label">Employee ID 2 <span style="color:red;"></span></label>
+                      <div class="col-sm-10">
+                        <select style="text-transform:uppercase" class="js-emp2-id form-control"></select>
+                       @if($errors->has('emp2_id'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('emp2_id') }}</p>
+                      @endif
+                      <input type="hidden" id="emp2_id" name="emp2_id">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="input_emp3_id" class="col-sm-2 control-label">Employee ID 3 <span style="color:red;"></span></label>
+                      <div class="col-sm-10">
+                        <select style="text-transform:uppercase" class="js-emp3-id form-control"></select>
+                       @if($errors->has('emp3_id'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('emp3_id') }}</p>
+                      @endif
+                      <input type="hidden" id="emp3_id" name="emp3_id">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="input_emp4_id" class="col-sm-2 control-label">Employee ID 4 <span style="color:red;"></span></label>
+                      <div class="col-sm-10">
+                        <select style="text-transform:uppercase" class="js-emp4-id form-control"></select>
+                       @if($errors->has('emp4_id'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('emp4_id') }}</p>
+                      @endif
+                      <input type="hidden" id="emp4_id" name="emp4_id">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="input_emp5_id" class="col-sm-2 control-label">Employee ID 5 <span style="color:red;"></span></label>
+                      <div class="col-sm-10">
+                        <select style="text-transform:uppercase" class="js-emp5-id form-control"></select>
+                       @if($errors->has('emp5_id'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('emp5_id') }}</p>
+                      @endif
+                      <input type="hidden" id="emp5_id" name="emp5_id">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="input_items_sub_total_view" class="col-sm-2 control-label">Sub Price <span style="color:red;">*</span></label>
+                      <div class="col-sm-10">
+                        <input type="number" min="0" class="form-control" name="items_sub_total_view" id="items_sub_total_view" placeholder="Sub Price" value="{{old('items_sub_total_view')}}" onblur="calculateForm();">
+                      @if($errors->has('items_sub_total_view'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('items_sub_total_view') }}</p>
+                      @endif
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="input_items_grand_total_view" class="col-sm-2 control-label">Grand Total <span style="color:red;"></span></label>
+                      <div class="col-sm-10">
+                        <input type="text" class="form-control" name="items_grand_total_view" id="items_grand_total_view" placeholder="Grand Total" value="{{old('items_grand_total_view')}}" readonly>
+                      @if($errors->has('items_grand_total_view'))
+                          <p style="font-style: bold; color: red;">{{ $errors->first('items_grand_total_view') }}</p>
+                      @endif
+                      </div>
+                    </div>
+                  <div class="box-footer">
+                    <button style="width:90px;" type="submit" class="btn btn-info pull-right">Submit</button>
+                  </div>
+                  <input type="hidden" name="validasi" value="{{ $validasi }}">
+                </form>
+              </div>
+            </div>
+            <div class="box box-primary">
+              <div class="box-header">
+              {{-- disini total detail pembelian dari total semua qty --}}
+                <h3 class="box-title">Cart - Grand Total : Rp {{number_format($total)}}</h3>
+              </div>
+
+              <div class="box-body table-responsive">
+                <table id="table-home" class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Quantities</th>
+                      <th>Sub Price</th>
+                      <th>Total Price</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    @foreach($selling->detail as $detail)
+                    <tr>
+                      @if($detail->status == "T")
+                        <td>{{$detail->barang_temp->nama}} <i>(temp)</i></td>
+                      @else
+                        @if($detail->type_sell==1)
+                          <td>{{$detail->jasa->name}}</td>
+                        @else
+                          <td>{{$detail->barang->nama}}</td>
+                        @endif
+                      @endif
+                      @if($detail->type_sell=="2")
+                        <td>Item</td>
+                      @else
+                        <td>Service</td>
+                      @endif
+                      <td>{{$detail->qty}}</td>
+                      <td>{{number_format($detail->sub_total_penjualan)}}</td>
+                      <td>{{number_format($detail->sub_total_penjualan * $detail->qty)}}</td>
+                      <td><a style="width:90px;" href="{{ url('/selling/selling_home/tig/delete_selling_detail/'.$detail->id.'/'.$selling->id.'/'.$totaluang.'/'.$idretur)}}" type="button" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this data ?')">Delete</a></td>
+                    </tr>
+                   @endforeach
+
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th>ID Items</th>
+                      <th>Quantities</th>
+                      <th>Sub Price</th>
+                      <th>Total Price</th>
+                      <th>Action</th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              <div class="box-footer">
+                {{-- <button style="width:90px;" type="submit" class="btn btn-default" onclick="close_window();return false;">Cancel</button> --}}
+                {{-- <button style="width:90px;" type="submit" class="btn btn-success pull-right" onclick="return confirm('Are you sure you want to buy ?')">Buy it</button> --}}
+                <a style="width:90px;" href="{{ url('/selling/selling_home/tig/checkout/'.$selling->id.'/'.$totaluang.'/'.$idretur) }}" type="button" class="btn btn-success pull-right">Sell it</a>
+              </div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+
+  function validasitrue(){
+        if($("#isavailable").val()==1){
+            return confirm('Are you sure you want to save this data Inventory ?')
+            return true;
+        }
+        else {
+            return confirm('Are you sure you want to save this data ?')
+            return true;
+        }
+    }
+
+  $("#type_select").on('change',function (e) {
+      $("#type_id").val($("#type_select").val());
+      if($("#type_id").val()==1){
+        $("#sell_qty").attr('readonly',true);
+        $("#layout_sell_qty").css('display','none');
+        $("#layout_items_qty_view").css('display','none');
+        $("#sell_pricediv").css('display','none');
+      }else{
+        $("#sell_pricediv").css('display','block');
+        $("#layout_sell_qty").css('display','block');
+        $("#layout_items_qty_view").css('display','block');
+        $("#sell_qty").val("");
+        $("#sell_qty").attr('readonly',false);
+        $("#items_qty_view").val("");
+      }
+  });
+
+  // items select2
+  $(".js-items-id").select2({
+  ajax: {
+    url: "{{ url('/selling/selling_home/search_items_selling') }}",
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+      return {
+        q: params.term, // search term
+        type: $("#type_id").val() // search term
+      };
+    },
+    processResults: function (data) {
+      // parse the results into the format expected by Select2.
+      // since we are using carom formatting functions we do not need to
+      // alter the remote JSON data
+
+      // console.log(data);
+
+      // data.push({id:'addnew',text:'Add New'});
+
+
+        return {
+          results: data
+        };
+      },
+      cache: true
+    },
+    minimumInputLength: 2,
+  });
+
+
+  $(".js-items-id").on("select2:select", function (e) {
+    if($("#type_id").val()==1||$("#type_id").val()==2){
+      var obj = $(".js-items-id").select2("data")
+      $('#items_id').val(obj[0].id);
+      $('#items_qty').val(obj[0].qty);
+      $('#items_qty_buy').val(obj[0].qty_buy);
+      $('#items_sub_total').val(obj[0].sub_total);
+      $('#items_sellprice').val(obj[0].sell_price);
+      $('#isavailable').val(obj[0].inven);
+
+      $('#items_qty_view').val(obj[0].qty);
+      $('#items_qty_viewasli').val(obj[0].qty);
+      $('#items_sub_total_view').val(obj[0].sell_price);
+
+      $('#items_grand_total').val(obj[0].qty * obj[0].sub_total);
+      $('#items_grand_total_view').val(obj[0].qty * obj[0].sub_total);
+
+      $('#id_get_items').val(obj[0].id_get_items);
+      $('#id_get_stock').val(obj[0].id_get_stock);
+      if(obj[0].id=="addnew"){
+        $("#new_item_layout").show();
+      }else{
+        $("#new_item_layout").hide();
+      }
+      var grand = document.getElementById("items_qty_view").value * document.getElementById("items_sub_total_view").value;
+      document.getElementById("items_grand_total_view").value = Math.round(grand);
+    }
+  });
+  // items select2
+
+  // customer select2
+  $(".js-cust-id").select2({
+  ajax: {
+    url: "{{ url('/selling/selling_home/search_customer_selling') }}",
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+      return {
+        q: params.term // search term
+      };
+    },
+    processResults: function (data) {
+      // parse the results into the format expected by Select2.
+      // since we are using carom formatting functions we do not need to
+      // alter the remote JSON data
+        return {
+          results: data
+        };
+      },
+      cache: true
+    },
+    minimumInputLength: 2
+  });
+
+  $(".js-cust-id").on("select2:select", function (e) {
+    var obj = $(".js-cust-id").select2("data")
+    $('#cust_id').val(obj[0].id);
+  });
+  // customer select2
+
+  // employee 1 select2
+  $(".js-emp1-id").select2({
+  ajax: {
+    url: "{{ url('/selling/selling_home/search_employee_1') }}",
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+      return {
+        q: params.term // search term
+      };
+    },
+    processResults: function (data) {
+      // parse the results into the format expected by Select2.
+      // since we are using carom formatting functions we do not need to
+      // alter the remote JSON data
+        return {
+          results: data
+        };
+      },
+      cache: true
+    },
+    minimumInputLength: 2
+  });
+
+  $(".js-emp1-id").on("select2:select", function (e) {
+    var obj = $(".js-emp1-id").select2("data")
+    $('#emp1_id').val(obj[0].id);
+  });
+  // employee 1 select2
+
+  // employee 2 select2
+  $(".js-emp2-id").select2({
+  ajax: {
+    url: "{{ url('/selling/selling_home/search_employee_2') }}",
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+      return {
+        q: params.term // search term
+      };
+    },
+    processResults: function (data) {
+      // parse the results into the format expected by Select2.
+      // since we are using carom formatting functions we do not need to
+      // alter the remote JSON data
+        return {
+          results: data
+        };
+      },
+      cache: true
+    },
+    minimumInputLength: 2
+  });
+
+  $(".js-emp2-id").on("select2:select", function (e) {
+    var obj = $(".js-emp2-id").select2("data")
+    $('#emp2_id').val(obj[0].id);
+  });
+  // employee 2 select2
+
+  // employee 3 select2
+  $(".js-emp3-id").select2({
+  ajax: {
+    url: "{{ url('/selling/selling_home/search_employee_3') }}",
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+      return {
+        q: params.term // search term
+      };
+    },
+    processResults: function (data) {
+      // parse the results into the format expected by Select2.
+      // since we are using carom formatting functions we do not need to
+      // alter the remote JSON data
+        return {
+          results: data
+        };
+      },
+      cache: true
+    },
+    minimumInputLength: 2
+  });
+
+  $(".js-emp3-id").on("select2:select", function (e) {
+    var obj = $(".js-emp3-id").select2("data")
+    $('#emp3_id').val(obj[0].id);
+  });
+  // employee 3 select2
+
+  // employee 4 select2
+  $(".js-emp4-id").select2({
+  ajax: {
+    url: "{{ url('/selling/selling_home/search_employee_4') }}",
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+      return {
+        q: params.term // search term
+      };
+    },
+    processResults: function (data) {
+      // parse the results into the format expected by Select2.
+      // since we are using carom formatting functions we do not need to
+      // alter the remote JSON data
+        return {
+          results: data
+        };
+      },
+      cache: true
+    },
+    minimumInputLength: 2
+  });
+
+  $(".js-emp4-id").on("select2:select", function (e) {
+    var obj = $(".js-emp4-id").select2("data")
+    $('#emp4_id').val(obj[0].id);
+  });
+  // employee 4 select2
+
+  // employee 5 select2
+  $(".js-emp5-id").select2({
+  ajax: {
+    url: "{{ url('/selling/selling_home/search_employee_5') }}",
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+      return {
+        q: params.term // search term
+      };
+    },
+    processResults: function (data) {
+      // parse the results into the format expected by Select2.
+      // since we are using carom formatting functions we do not need to
+      // alter the remote JSON data
+        return {
+          results: data
+        };
+      },
+      cache: true
+    },
+    minimumInputLength: 2
+  });
+
+  $(".js-emp5-id").on("select2:select", function (e) {
+    var obj = $(".js-emp5-id").select2("data")
+    $('#emp5_id').val(obj[0].id);
+  });
+  // employee 5 select2
+
+  var calculateForm = function (){
+    var grand = document.getElementById("items_qty_view").value * document.getElementById("items_sub_total_view").value;
+    document.getElementById("items_grand_total_view").value = Math.round(grand);
+  };
+
+  $('.for_date').datetimepicker({
+    format: 'YYYY/MM/DD',
+    maxDate: new Date()
+  });
+
+   $('.for_date_due').datetimepicker({
+    format: 'YYYY/MM/DD',
+    minDate: new Date()
+  });
+
+
+  </script>
+</body>
+@endsection
