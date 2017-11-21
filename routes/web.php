@@ -332,6 +332,7 @@ Auth::routes();
 	// ADDTIONAL
 		// addtional route-------------------------------------------------------
 		Route::get('addtional/addtional_home', 'Addtional\AddtionalCost@index_addtional');
+		Route::get('addtional/addtional_home/detail/{id}', 'Addtional\AddtionalCost@detail_addtional');
 		Route::get('addtional/addtional_home/add', 'Addtional\AddtionalCost@add_addtional');
 		Route::post('addtional/addtional_home/do_addnext', 'Addtional\AddtionalCost@do_add_addtional');
 		Route::get('addtional/addtional_home/addnext/{id}', 'Addtional\AddtionalCost@addnext_addtional');

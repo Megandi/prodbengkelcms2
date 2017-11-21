@@ -40,6 +40,22 @@ class AddtionalCost extends Controller
         }
         // ---------------------------------------------------------------------------------
 
+        // addtional cost detail function----------------------------------------------------
+        public function detail_addtional($id)
+        {
+            // $lt_biayalain = DB::select("SELECT a.*, SUM(b.jumlah) AS 'totaljumlah_detail'
+            // 				FROM lt_biayalain a LEFT JOIN lt_biayalain_detail b
+            // 				ON a.id = b.biayalain_id
+            // 				WHERE a.status = 'A'
+            //         AND a.id = $id
+            // 				GROUP BY a.id");
+
+            $add = manage_biayalain::find($id);
+
+            return view('addtional/addtional/adddetail', ['add' => $add]);
+        }
+        // ---------------------------------------------------------------------------------
+
         // addtional cost add function------------------------------------------------------
         public function add_addtional()
         {

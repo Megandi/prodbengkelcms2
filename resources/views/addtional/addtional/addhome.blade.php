@@ -139,7 +139,7 @@
                       @foreach($lt_biayalain as $item)
                       <tr>
                         <td><?= date("d/m/Y H:i:s",strtotime($item->created_date));?></td>
-                        <td>{{$item->biayalain_id}}</td>
+                        <td><a href="{{url('addtional/addtional_home/detail/'.$item->id)}}" >{{$item->biayalain_id}}</a></td>
                         <td>{{$item->no_nota}}</td>
                         <td>{{date("d/m/Y",strtotime($item->tanggal))}}</td>
                         <td>{{$item->totaljumlah_detail}}</td>
